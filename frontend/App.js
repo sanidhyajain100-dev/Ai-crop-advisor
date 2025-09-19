@@ -14,7 +14,7 @@ import * as Speech from 'expo-speech';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 
 // Replace with your backend IP address
-const API_BASE_URL = 'https://farmerapp-hgdd.onrender.com';
+const API_BASE_URL = 'https://farmerappai.onrender.com';
 
 export default function App() {
   const [prediction, setPrediction] = useState(null);
