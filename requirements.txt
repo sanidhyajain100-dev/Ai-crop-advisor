@@ -42,7 +42,7 @@ keras==3.11.3
 Markdown==3.9
 Markdown-it-py==4.0.0
 MarkupSafe==3.0.2
-numpy==1.26.4
+numpy
 openai==1.108.0
 packaging==20.9
 pillow==11.3.0
