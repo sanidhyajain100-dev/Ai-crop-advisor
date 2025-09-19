@@ -130,7 +130,42 @@ def get_weather_data(lat, lon):
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({'message': 'AI Crop Advisor Running', 'status': 'OK'})
+    return jsonify({
+        'message': 'AI Crop Advisor Running', 
+        'status': 'OK',
+        'gemini_configured': bool(GEMINI_API_KEY),
+        'weather_configured': bool(WEATHER_API_KEY)
+    })
+
+@app.route('/api/test-keys', methods=['GET'])
+def test_keys():
+    try:
+        # Test Gemini API
+        model_ai = genai.GenerativeModel('gemini-1.5-flash')
+        gemini_response = model_ai.generate_content('Say "Gemini working"')
+        gemini_working = bool(gemini_response.text)
+        
+        # Test Weather API
+        weather_response = requests.get(
+            'https://api.openweathermap.org/data/2.5/weather',
+            params={'lat': 19.076, 'lon': 72.8777, 'appid': WEATHER_API_KEY, 'units': 'metric'}
+        )
+        weather_working = weather_response.status_code == 200
+        
+        return jsonify({
+            'success': True,
+            'gemini_working': gemini_working,
+            'weather_working': weather_working,
+            'gemini_response': gemini_response.text[:50] if gemini_working else None,
+            'weather_status': weather_response.status_code
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'gemini_working': False,
+            'weather_working': False
+        })
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
