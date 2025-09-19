@@ -19,8 +19,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # API Keys
-GEMINI_API_KEY = os.environ.get('Gemini_API_key') or 'AIzaSyD8Vb3TXMsoWVC9FAzBmdOXdhTHogBZeXk'
-WEATHER_API_KEY = os.environ.get('Weather_API_key') or '05f2aa91f5f9bad84b85669db209d61a'
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyD8Vb3TXMsoWVC9FAzBmdOXdhTHogBZeXk'
+WEATHER_API_KEY = os.environ.get('WEATHER_API_KEY') or '05f2aa91f5f9bad84b85669db209d61a'
 
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
