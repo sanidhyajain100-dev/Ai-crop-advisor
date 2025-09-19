@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Speech from 'expo-speech';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+// Speech recognition temporarily disabled - requires native build
 
 // Replace with your backend IP address
 const API_BASE_URL = 'https://farmerappai.onrender.com';
@@ -38,20 +38,21 @@ export default function App() {
   const [isRecognizing, setIsRecognizing] = useState(false);
 
   // Speech recognition: live transcript flows into chatInput
-  useSpeechRecognitionEvent && useSpeechRecognitionEvent('start', () => setIsRecognizing(true));
-  useSpeechRecognitionEvent && useSpeechRecognitionEvent('end', () => setIsRecognizing(false));
-  useSpeechRecognitionEvent && useSpeechRecognitionEvent('result', (event) => {
-    try {
-      const result = event?.results?.[0]?.transcript || '';
-      if (result) setChatInput(result);
-    } catch (e) {
-      addDebugLog(`STT parse error: ${e.message}`);
-    }
-  });
-  useSpeechRecognitionEvent && useSpeechRecognitionEvent('error', (event) => {
-    addDebugLog(`STT error: ${event?.error || 'unknown'} ${event?.message || ''}`);
-    setIsRecognizing(false);
-  });
+  // Temporarily disabled - requires native build
+  // useSpeechRecognitionEvent && useSpeechRecognitionEvent('start', () => setIsRecognizing(true));
+  // useSpeechRecognitionEvent && useSpeechRecognitionEvent('end', () => setIsRecognizing(false));
+  // useSpeechRecognitionEvent && useSpeechRecognitionEvent('result', (event) => {
+  //   try {
+  //     const result = event?.results?.[0]?.transcript || '';
+  //     if (result) setChatInput(result);
+  //   } catch (e) {
+  //     addDebugLog(`STT parse error: ${e.message}`);
+  //   }
+  // });
+  // useSpeechRecognitionEvent && useSpeechRecognitionEvent('error', (event) => {
+  //   addDebugLog(`STT error: ${event?.error || 'unknown'} ${event?.message || ''}`);
+  //   setIsRecognizing(false);
+  // });
 
   // Debug logging function
   const addDebugLog = (message) => {
@@ -388,15 +389,16 @@ export default function App() {
   useEffect(() => {
     return () => {
       try { Speech.stop(); } catch (e) {}
-      try { ExpoSpeechRecognitionModule && ExpoSpeechRecognitionModule.stop && ExpoSpeechRecognitionModule.stop(); } catch (e) {}
+      // try { ExpoSpeechRecognitionModule && ExpoSpeechRecognitionModule.stop && ExpoSpeechRecognitionModule.stop(); } catch (e) {}
     };
   }, []);
 
   const requestMicPermission = async () => {
     try {
-      if (!ExpoSpeechRecognitionModule?.requestPermissionsAsync) return true;
-      const res = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-      const granted = res?.granted ?? res?.status === 'granted';
+      // if (!ExpoSpeechRecognitionModule?.requestPermissionsAsync) return true;
+      // const res = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      // const granted = res?.granted ?? res?.status === 'granted';
+      const granted = false; // Temporarily disabled
       if (!granted) Alert.alert('Permission needed', 'Microphone access is required for voice input.');
       return !!granted;
     } catch (e) {
@@ -406,18 +408,20 @@ export default function App() {
   };
 
   const startRecognition = async () => {
-    const ok = await requestMicPermission();
-    if (!ok) return;
+    // const ok = await requestMicPermission();
+    // if (!ok) return;
     try {
-      if (ExpoSpeechRecognitionModule?.start) {
-        await ExpoSpeechRecognitionModule.start({
-          lang: 'en-US',
-          interimResults: true,
-          continuous: false,
-          maxAlternatives: 1,
-          addsPunctuation: false,
-        });
-      }
+      // Speech recognition temporarily disabled - requires native build
+      // if (ExpoSpeechRecognitionModule?.start) {
+      //   await ExpoSpeechRecognitionModule.start({
+      //     lang: 'en-US',
+      //     interimResults: true,
+      //     continuous: false,
+      //     maxAlternatives: 1,
+      //     addsPunctuation: false,
+      //   });
+      // }
+      Alert.alert('Voice Input', 'Voice input is temporarily disabled. Please type your message.');
     } catch (e) {
       addDebugLog(`STT start error: ${e.message}`);
     }
@@ -425,7 +429,8 @@ export default function App() {
 
   const stopRecognition = async () => {
     try {
-      if (ExpoSpeechRecognitionModule?.stop) await ExpoSpeechRecognitionModule.stop();
+      // if (ExpoSpeechRecognitionModule?.stop) await ExpoSpeechRecognitionModule.stop();
+      // Speech recognition temporarily disabled
     } catch (e) {
       addDebugLog(`STT stop error: ${e.message}`);
     }

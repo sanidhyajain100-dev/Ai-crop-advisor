@@ -19,11 +19,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # API Keys
-GEMINI_API_KEY = os.environ.get('Gemini_API_key')
-WEATHER_API_KEY = os.environ.get('Weather_API_key')
+GEMINI_API_KEY = os.environ.get('Gemini_API_key') or 'AIzaSyD8Vb3TXMsoWVC9FAzBmdOXdhTHogBZeXk'
+WEATHER_API_KEY = os.environ.get('Weather_API_key') or '05f2aa91f5f9bad84b85669db209d61a'
 
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
+logger.info(f"Gemini API configured: {'Yes' if GEMINI_API_KEY else 'No'}")
+logger.info(f"Weather API configured: {'Yes' if WEATHER_API_KEY else 'No'}")
 
 # Combined training data (corrected - all arrays have 30 elements)
 training_data = {
@@ -101,9 +103,16 @@ disease_database = {
 # Weather function shared by both
 def get_weather_data(lat, lon):
     try:
+        if not WEATHER_API_KEY:
+            logger.error("Weather API key not configured")
+            return None
+            
         url = "https://api.openweathermap.org/data/2.5/weather"
         params = {'lat': lat, 'lon': lon, 'appid': WEATHER_API_KEY, 'units': 'metric'}
         response = requests.get(url, params=params)
+        
+        logger.info(f"Weather API response status: {response.status_code}")
+        
         if response.status_code == 200:
             data = response.json()
             return {
@@ -111,6 +120,8 @@ def get_weather_data(lat, lon):
                 'humidity': data['main']['humidity'],
                 'description': data['weather'][0]['description']
             }
+        else:
+            logger.error(f"Weather API error: {response.status_code} - {response.text}")
     except Exception as e:
         logger.error(f"Weather API error: {e}")
     return None
@@ -174,7 +185,7 @@ def chatbot():
         return jsonify({'success': True, 'response': text, 'lang': lang, 'concise': concise})
     except Exception as e:
         logger.error(f"Chatbot error: {e}")
-        return jsonify({'success': True, 'response': 'Please consult local experts.'})
+        return jsonify({'success': False, 'error': f'AI service error: {str(e)}', 'response': 'Please consult local experts.'})
 
 @app.route('/api/weather', methods=['POST'])
 def weather():
