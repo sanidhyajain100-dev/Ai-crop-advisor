@@ -509,9 +509,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   headerSubtitle: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'white',
     fontSize: 16,
     textAlign: 'center',
+    textShadowColor: 'rgb(255, 255, 255)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    fontWeight: '500',
   },
   lastUpdated: {
     color: 'rgba(255, 255, 255, 0.8)',
