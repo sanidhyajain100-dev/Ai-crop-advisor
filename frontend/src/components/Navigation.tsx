@@ -10,7 +10,9 @@ import {
   FileText,
   Settings,
   Menu,
-  X
+  X,
+  BarChart3,
+  Building
 } from "lucide-react";
 import { Button } from "@/components/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/sheet";
@@ -30,6 +32,8 @@ const Navigation = ({ activeSection, onSectionChange }: NavigationProps) => {
     { id: "detection", label: "Disease Detection", icon: Scan },
     { id: "chat", label: "AI Assistant", icon: MessageCircle },
     { id: "calendar", label: "Crop Calendar", icon: Calendar },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "business", label: "Business Model", icon: Building },
     { id: "community", label: "Community", icon: Users },
     { id: "reports", label: "Reports", icon: FileText },
     { id: "settings", label: "Settings", icon: Settings },

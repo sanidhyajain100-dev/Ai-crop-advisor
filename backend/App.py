@@ -1,13 +1,17 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
-import requests
 import google.generativeai as genai
+import requests
+import os
 import logging
 import base64
+from PIL import Image
+import io
+from analytics import analytics_manager
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+import numpy as np
 import random
 import os
 
@@ -363,6 +367,31 @@ def dashboard_stats():
     except Exception as e:
         logger.error(f"Dashboard stats error: {e}")
         return jsonify({'success': False, 'error': 'Failed to fetch statistics'}), 500
+
+@app.route('/api/analytics', methods=['GET'])
+def get_analytics():
+    """Get detailed analytics and performance metrics"""
+    try:
+        analytics_data = analytics_manager.get_analytics_summary()
+        return jsonify(analytics_data)
+    except Exception as e:
+        logger.error(f"Analytics error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch analytics'}), 500
+
+@app.route('/api/record-prediction', methods=['POST'])
+def record_prediction():
+    """Record a prediction for analytics"""
+    try:
+        data = request.get_json()
+        crop = data.get('crop', 'unknown')
+        confidence = data.get('confidence', 0.5)
+        success = data.get('success', True)
+        
+        analytics_manager.record_prediction(crop, confidence, success)
+        return jsonify({'success': True, 'message': 'Prediction recorded'})
+    except Exception as e:
+        logger.error(f"Record prediction error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to record prediction'}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

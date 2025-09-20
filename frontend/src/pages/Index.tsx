@@ -7,6 +7,9 @@ import DiseaseDetection from "@/components/DiseaseDetection";
 import AIChat from "@/components/AIChat";
 import CropCalendar from "@/components/CropCalendar";
 import CropPrediction from "@/components/CropPrediction";
+import AnalyticsDashboard from "@/components/AnalyticsDashboard";
+import BusinessModel from "@/components/BusinessModel";
+import LanguageSelector from "@/components/LanguageSelector";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
@@ -51,6 +54,20 @@ const Index = () => {
             <CropCalendar />
           </div>
         );
+      case "analytics":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-foreground">Analytics & Performance</h2>
+            <AnalyticsDashboard />
+          </div>
+        );
+      case "business":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-foreground">Business Model & Scalability</h2>
+            <BusinessModel />
+          </div>
+        );
       default:
         return (
           <div className="text-center py-20">
@@ -67,6 +84,11 @@ const Index = () => {
       
       <main className="md:ml-72 p-4 md:p-6 pt-16 md:pt-6">
         <div className="max-w-6xl mx-auto">
+          {/* Language Selector */}
+          <div className="flex justify-end mb-4">
+            <LanguageSelector />
+          </div>
+          
           {renderContent()}
         </div>
       </main>
