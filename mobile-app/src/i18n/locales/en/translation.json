@@ -1,0 +1,61 @@
+{
+  "app": {
+    "title": "CropAI Assistant",
+    "tagline": "Smart farming solutions"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "weather": "Weather",
+    "crops": "Crops",
+    "detection": "Disease Detection",
+    "chat": "AI Assistant",
+    "calendar": "Crop Calendar",
+    "analytics": "Analytics",
+    "business": "Business Model",
+    "community": "Community",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "changeLanguage": "Change language",
+    "available": "Available",
+    "comingSoon": "Coming Soon",
+    "underDevelopment": "This section is under development and will be available soon.",
+    "inDevelopment": "In Development"
+  },
+  "dashboard": {
+    "welcome": "Welcome to CropAI",
+    "stats": {
+      "farmers": "Active Farmers",
+      "diseases": "Diseases Detected",
+      "recommendations": "Crop Recommendations",
+      "queries": "AI Queries Answered"
+    }
+  },
+  "cropPrediction": {
+    "title": "Crop Recommendation",
+    "description": "Get the best crop recommendations based on your soil and weather conditions"
+  },
+  "diseaseDetection": {
+    "title": "Disease Detection",
+    "uploadPhoto": "Upload Plant Photo",
+    "takePhoto": "Take Photo"
+  },
+  "weather": {
+    "title": "Weather Forecast",
+    "current": "Current Weather",
+    "forecast": "5-Day Forecast"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "help": "Help & Support"
+  }
+}

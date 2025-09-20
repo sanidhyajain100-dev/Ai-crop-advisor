@@ -1,0 +1,61 @@
+{
+  "app": {
+    "title": "क्रॉपएआई सहायक",
+    "tagline": "स्मार्ट खेती समाधान"
+  },
+  "navigation": {
+    "dashboard": "डैशबोर्ड",
+    "weather": "मौसम",
+    "crops": "फसलें",
+    "detection": "रोग पहचान",
+    "chat": "एआई सहायक",
+    "calendar": "फसल कैलेंडर",
+    "analytics": "विश्लेषण",
+    "business": "व्यवसाय मॉडल",
+    "community": "समुदाय",
+    "settings": "सेटिंग्स"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफल",
+    "submit": "जमा करें",
+    "cancel": "रद्द करें",
+    "reset": "रीसेट",
+    "changeLanguage": "भाषा बदलें",
+    "available": "उपलब्ध",
+    "comingSoon": "जल्द ही आ रहा है",
+    "underDevelopment": "यह सेक्शन विकासाधीन है और जल्द ही उपलब्ध होगा।",
+    "inDevelopment": "विकासाधीन"
+  },
+  "dashboard": {
+    "welcome": "क्रॉपएआई में आपका स्वागत है",
+    "stats": {
+      "farmers": "सक्रिय किसान",
+      "diseases": "रोगों का पता चला",
+      "recommendations": "फसल सिफारिशें",
+      "queries": "एआई प्रश्नों के उत्तर"
+    }
+  },
+  "cropPrediction": {
+    "title": "फसल सिफारिश",
+    "description": "अपनी मिट्टी और मौसम की स्थिति के आधार पर सर्वोत्तम फसल सिफारिशें प्राप्त करें"
+  },
+  "diseaseDetection": {
+    "title": "रोग का पता लगाना",
+    "uploadPhoto": "पौधे की फोटो अपलोड करें",
+    "takePhoto": "फोटो खींचें"
+  },
+  "weather": {
+    "title": "मौसम पूर्वानुमान",
+    "current": "वर्तमान मौसम",
+    "forecast": "5-दिन का पूर्वानुमान"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "language": "भाषा",
+    "theme": "थीम",
+    "notifications": "सूचनाएं",
+    "help": "सहायता और समर्थन"
+  }
+}
