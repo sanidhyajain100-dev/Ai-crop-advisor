@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Cloud, Sun, CloudRain, Thermometer, Droplets, Wind, MapPin } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
+import { Button } from "@/components/button";
+import { Input } from "@/components/input";
 import { api } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/lib/use-toast";
 
 interface WeatherData {
   location: string;

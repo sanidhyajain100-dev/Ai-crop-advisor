@@ -1,6 +1,6 @@
 import { Calendar, Bell, Droplets, Scissors, Sprout } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
+import { Badge } from "@/components/badge";
 
 interface CalendarEvent {
   id: string;

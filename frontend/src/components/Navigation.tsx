@@ -12,8 +12,8 @@ import {
   Menu,
   X
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/sheet";
 
 interface NavigationProps {
   activeSection: string;
