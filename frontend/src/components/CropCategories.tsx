@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
+import { Badge } from "@/components/badge";
 import { Wheat, DollarSign, Apple, ChevronRight } from "lucide-react";
-import cropsImage from "@/assets/crops-collage.jpg";
 
 interface Crop {
   id: string;
@@ -68,14 +67,9 @@ const CropCategories = () => {
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-lg mb-6">
-        <img 
-          src={cropsImage} 
-          alt="Various crops" 
-          className="w-full h-32 object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center">
-          <h2 className="text-white text-xl font-bold ml-4">Crop Database</h2>
+      <div className="relative overflow-hidden rounded-lg mb-6 bg-gradient-to-r from-green-600 to-green-400">
+        <div className="flex items-center justify-center h-32">
+          <h2 className="text-white text-xl font-bold">Crop Database</h2>
         </div>
       </div>
 
