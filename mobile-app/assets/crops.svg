@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#E8F5E9"/>
+  <circle cx="200" cy="150" r="100" fill="#4CAF50" opacity="0.2"/>
+  <path d="M150,180 C150,120 250,120 250,180" stroke="#2E7D32" stroke-width="8" fill="none"/>
+  <path d="M150,180 L150,100" stroke="#2E7D32" stroke-width="8" fill="none"/>
+  <path d="M250,180 L250,100" stroke="#2E7D32" stroke-width="8" fill="none"/>
+  <path d="M150,140 L130,120" stroke="#2E7D32" stroke-width="6" fill="none"/>
+  <path d="M150,120 L130,100" stroke="#2E7D32" stroke-width="6" fill="none"/>
+  <path d="M250,140 L270,120" stroke="#2E7D32" stroke-width="6" fill="none"/>
+  <path d="M250,120 L270,100" stroke="#2E7D32" stroke-width="6" fill="none"/>
+  <circle cx="200" cy="80" r="30" fill="#8BC34A"/>
+  <text x="200" y="240" font-family="Arial" font-size="24" text-anchor="middle" fill="#2E7D32">Crop Recommendation</text>
+</svg>

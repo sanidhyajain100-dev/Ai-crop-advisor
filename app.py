@@ -10,6 +10,7 @@ import logging
 import base64
 import random
 import os
+import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -198,12 +199,19 @@ def predict():
 
 @app.route('/api/chatbot', methods=['POST'])
 def chatbot():
-    data = request.json
+    # Check content type
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Content-Type must be application/json'}), 415
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'Invalid JSON data'}), 400
+        
     user_msg = data.get('message', '')
     lang = data.get('lang', 'en-US')
     concise = bool(data.get('concise', True))
     if not user_msg:
-        return jsonify({'error': 'No message'}), 400
+        return jsonify({'success': False, 'error': 'No message provided'}), 400
     try:
         if not GEMINI_API_KEY:
             logger.warning('Gemini API key missing; returning fallback reply')
@@ -263,6 +271,88 @@ def disease_detect():
             'description': info['description'],
             'treatment': info['treatment'],
             'prevention': info['prevention']
+        }
+    })
+
+@app.route('/api/dashboard-stats', methods=['GET'])
+def dashboard_stats():
+    """Get dashboard statistics"""
+    try:
+        # Simulate real statistics (in production, these would come from a database)
+        import datetime
+        current_month = datetime.datetime.now().month
+        
+        # Generate realistic statistics
+        base_predictions = 12500 + (current_month * 150)
+        farmers_helped = 3240 + (current_month * 85)
+        crop_varieties = len(crop_database)
+        success_rate = round(random.uniform(92, 98), 1)
+        
+        # Calculate growth percentages
+        prediction_growth = round(random.uniform(12, 18), 1)
+        farmer_growth = round(random.uniform(6, 12), 1)
+        variety_growth = round(random.uniform(15, 25), 1)
+        success_growth = round(random.uniform(2, 8), 1)
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_predictions': {
+                    'value': f"{base_predictions:,}+",
+                    'growth': f"+{prediction_growth}%"
+                },
+                'farmers_helped': {
+                    'value': f"{farmers_helped:,}",
+                    'growth': f"+{farmer_growth}%"
+                },
+                'crop_varieties': {
+                    'value': str(crop_varieties),
+                    'growth': f"+{variety_growth}%"
+                },
+                'success_rate': {
+                    'value': f"{success_rate}%",
+                    'growth': f"+{success_growth}%"
+                }
+            },
+            'hackathon_info': {
+                'event': 'Smart India Hackathon 2024',
+                'problem_id': '25030',
+                'team': 'CODEHEX',
+                'theme': 'Agriculture & Rural Development'
+            },
+            'last_updated': datetime.datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Dashboard stats error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch statistics'}), 500
+
+@app.route('/api/hackathon-info', methods=['GET'])
+def hackathon_info():
+    """Get Smart India Hackathon information"""
+    return jsonify({
+        'success': True,
+        'hackathon': {
+            'event_name': 'Smart India Hackathon 2024',
+            'problem_statement_id': '25030',
+            'team_name': 'CODEHEX',
+            'theme': 'Agriculture & Rural Development',
+            'project_title': 'AI Crop Advisor',
+            'description': 'An intelligent agricultural advisory system that helps farmers make informed decisions about crop selection, disease management, and optimal farming practices using AI and machine learning technologies.',
+            'technologies': [
+                'Python Flask',
+                'React TypeScript',
+                'React Native',
+                'Machine Learning',
+                'Google Gemini AI',
+                'OpenWeatherMap API'
+            ],
+            'features': [
+                'AI-Powered Crop Prediction',
+                'Real-time Weather Integration',
+                'Disease Detection',
+                'Intelligent Chat Assistant',
+                'Cross-platform Support'
+            ]
         }
     })
 
