@@ -65,9 +65,9 @@ const DashboardScreen = ({ navigation }: any) => {
   const fetchDashboardStats = async () => {
     try {
       console.log('Fetching dashboard stats...');
-      // Add timeout to prevent hanging
+      // Add timeout to prevent hanging (increased to 15 seconds)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 5000)
+        setTimeout(() => reject(new Error('Request timeout')), 15000)
       );
       
       const response = await Promise.race([
@@ -127,8 +127,8 @@ const DashboardScreen = ({ navigation }: any) => {
         }),
       ]).start();
     } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
-      console.log('Using fallback stats due to error');
+      // Silently handle dashboard stats errors - not critical for app functionality
+      console.log('Dashboard stats unavailable, using default values');
       setStats(defaultStats);
       
       // Still animate even with fallback data
