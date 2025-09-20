@@ -1,10 +1,17 @@
 import axios from 'axios';
 
 // Base URL for the backend API
-// Use different URLs based on environment
-// 10.0.2.2 is for Android emulator, 127.0.0.1 or localhost is for web/local testing
-// For web preview, we need to use the actual IP address visible in the Flask logs
-const API_URL = 'http://192.168.29.153:5000/api'; // Using the actual IP address from Flask logs
+// Always use Railway for now since it's deployed and working
+const API_URL = 'https://web-production-d6596.up.railway.app/api';
+
+// Configure axios defaults
+axios.defaults.timeout = 30000;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+// Alternative: Use different URLs based on environment
+// const API_URL = __DEV__ 
+//   ? 'http://192.168.29.153:5000/api' // Local development
+//   : 'https://web-production-d6596.up.railway.app/api'; // Production (Railway)
 
 // Types
 export interface CropPredictionRequest {
@@ -142,14 +149,26 @@ export const cropService = {
   // Send message to chatbot
   sendChatMessage: async (data: ChatbotRequest): Promise<ChatbotResponse> => {
     try {
+      console.log('Sending chat message to:', `${API_URL}/chatbot`);
+      console.log('Data:', data);
+      
       const response = await axios.post(`${API_URL}/chatbot`, data, {
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: 30000, // 30 second timeout
       });
+      
+      console.log('Chat response:', response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending chat message:', error);
+      console.error('API URL:', `${API_URL}/chatbot`);
+      
+      if (error?.code === 'NETWORK_ERROR' || error?.message?.includes('Network Error')) {
+        throw new Error('Network connection failed. Please check your internet connection.');
+      }
+      
       throw error;
     }
   },
