@@ -77,7 +77,7 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold text-primary-foreground mb-2">
             {t('dashboard.hero.title')}
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-white max-w-2xl mx-auto">
             {t('dashboard.hero.subtitle')}
           </p>
         </div>
