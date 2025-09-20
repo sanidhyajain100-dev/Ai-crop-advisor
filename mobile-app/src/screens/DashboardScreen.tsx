@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     textAlign: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgb(255, 255, 255)',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   lastUpdated: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(158, 129, 129, 0.8)',
     fontSize: 12,
     textAlign: 'center',
     marginTop: 4,
