@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import Navigation from "@/components/Navigation";
 import Dashboard from "@/components/Dashboard";
 import WeatherCard from "@/components/WeatherCard";
@@ -14,6 +15,8 @@ import LanguageSelector from "@/components/LanguageSelector";
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
 
+  const { t } = useTranslation();
+
   const renderContent = () => {
     switch (activeSection) {
       case "home":
@@ -21,14 +24,14 @@ const Index = () => {
       case "weather":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Weather Dashboard</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('weather.title')}</h2>
             <WeatherCard />
           </div>
         );
       case "crops":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Crop Database & Prediction</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('cropPrediction.title')}</h2>
             <CropPrediction />
             <CropCategories />
           </div>
@@ -36,43 +39,43 @@ const Index = () => {
       case "detection":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Disease Detection</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('diseaseDetection.title')}</h2>
             <DiseaseDetection />
           </div>
         );
       case "chat":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">AI Assistant</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('chat.title')}</h2>
             <AIChat />
           </div>
         );
       case "calendar":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Crop Calendar</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('calendar.title')}</h2>
             <CropCalendar />
           </div>
         );
       case "analytics":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Analytics & Performance</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('analytics.title')}</h2>
             <AnalyticsDashboard />
           </div>
         );
       case "business":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Business Model & Scalability</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('business.title')}</h2>
             <BusinessModel />
           </div>
         );
       default:
         return (
           <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-foreground mb-4">Feature Coming Soon</h2>
-            <p className="text-muted-foreground">This section is under development and will be available soon.</p>
+            <h2 className="text-2xl font-bold text-foreground mb-4">{t('common.comingSoon')}</h2>
+            <p className="text-muted-foreground">{t('common.underDevelopment')}</p>
           </div>
         );
     }

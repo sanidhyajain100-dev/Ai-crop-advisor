@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/sheet";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NavigationProps {
   activeSection: string;
@@ -24,19 +25,20 @@ interface NavigationProps {
 
 const Navigation = ({ activeSection, onSectionChange }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   const navItems = [
-    { id: "home", label: "Dashboard", icon: Home },
-    { id: "weather", label: "Weather", icon: Cloud },
-    { id: "crops", label: "Crops", icon: Database },
-    { id: "detection", label: "Disease Detection", icon: Scan },
-    { id: "chat", label: "AI Assistant", icon: MessageCircle },
-    { id: "calendar", label: "Crop Calendar", icon: Calendar },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "business", label: "Business Model", icon: Building },
-    { id: "community", label: "Community", icon: Users },
-    { id: "reports", label: "Reports", icon: FileText },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "home", label: t('navigation.dashboard', 'Dashboard'), icon: Home },
+    { id: "weather", label: t('navigation.weather', 'Weather'), icon: Cloud },
+    { id: "crops", label: t('navigation.crops', 'Crops'), icon: Database },
+    { id: "detection", label: t('navigation.detection', 'Disease Detection'), icon: Scan },
+    { id: "chat", label: t('navigation.chat', 'AI Assistant'), icon: MessageCircle },
+    { id: "calendar", label: t('navigation.calendar', 'Crop Calendar'), icon: Calendar },
+    { id: "analytics", label: t('navigation.analytics', 'Analytics'), icon: BarChart3 },
+    { id: "business", label: t('navigation.business', 'Business Model'), icon: Building },
+    { id: "community", label: t('navigation.community', 'Community'), icon: Users },
+    { id: "reports", label: t('navigation.reports', 'Reports'), icon: FileText },
+    { id: "settings", label: t('navigation.settings', 'Settings'), icon: Settings },
   ];
 
   const handleNavClick = (section: string) => {
@@ -48,9 +50,11 @@ const Navigation = ({ activeSection, onSectionChange }: NavigationProps) => {
     <div className="space-y-2 p-4">
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-foreground bg-gradient-primary bg-clip-text text-transparent">
-          CropAI Assistant
+          {t('app.title')}
         </h2>
-        <p className="text-sm text-muted-foreground">Smart farming solutions</p>
+        <p className="text-sm text-muted-foreground">
+          {t('app.tagline')}
+        </p>
       </div>
       
       {navItems.map((item) => {

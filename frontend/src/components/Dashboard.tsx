@@ -1,31 +1,34 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
 import { TrendingUp, Users, Zap, Shield } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
+  
   const stats = [
     {
-      title: "Active Farmers",
+      title: t('dashboard.stats.farmers'),
       value: "12,500+",
       change: "+15%",
       icon: Users,
       color: "text-success"
     },
     {
-      title: "Diseases Detected",
+      title: t('dashboard.stats.diseases'),
       value: "3,240",
       change: "+8%",
       icon: Shield,
       color: "text-warning"
     },
     {
-      title: "Crop Recommendations",
+      title: t('dashboard.stats.recommendations'),
       value: "8,750",
       change: "+22%",
       icon: TrendingUp,
       color: "text-primary"
     },
     {
-      title: "AI Queries Answered",
+      title: t('dashboard.stats.queries'),
       value: "25,600",
       change: "+18%",
       icon: Zap,
@@ -35,34 +38,34 @@ const Dashboard = () => {
 
   const features = [
     {
-      title: "Smart Crop Recommendations",
-      description: "AI-powered suggestions based on soil, weather, and market conditions",
-      status: "Available"
+      title: t('dashboard.features.cropRecommendations.title'),
+      description: t('dashboard.features.cropRecommendations.description'),
+      status: t('common.available')
     },
     {
-      title: "Disease Detection",
-      description: "Upload plant images for instant disease identification and treatment",
-      status: "Available"
+      title: t('dashboard.features.diseaseDetection.title'),
+      description: t('dashboard.features.diseaseDetection.description'),
+      status: t('common.available')
     },
     {
-      title: "Weather Integration",
-      description: "Real-time weather data for optimal farming decisions",
-      status: "Available"
+      title: t('dashboard.features.weatherIntegration.title'),
+      description: t('dashboard.features.weatherIntegration.description'),
+      status: t('common.available')
     },
     {
-      title: "Voice Assistant",
-      description: "Speak to get farming advice in your local language",
-      status: "Available"
+      title: t('dashboard.features.voiceAssistant.title'),
+      description: t('dashboard.features.voiceAssistant.description'),
+      status: t('common.available')
     },
     {
-      title: "Offline Mode",
-      description: "Basic predictions and advice without internet connectivity",
-      status: "Coming Soon"
+      title: t('dashboard.features.offlineMode.title'),
+      description: t('dashboard.features.offlineMode.description'),
+      status: t('common.comingSoon')
     },
     {
-      title: "Expert Connect",
-      description: "Direct access to agricultural experts for complex queries",
-      status: "Coming Soon"
+      title: t('dashboard.features.marketplace.title'),
+      description: t('dashboard.features.marketplace.description'),
+      status: t('common.inDevelopment')
     }
   ];
 
@@ -72,15 +75,10 @@ const Dashboard = () => {
       <div className="relative overflow-hidden rounded-xl bg-gradient-crop shadow-elevated">
         <div className="relative p-8 text-center">
           <h1 className="text-3xl font-bold text-primary-foreground mb-2">
-            AI Crop Advisor
+            {t('dashboard.hero.title')}
           </h1>
-          <div className="inline-block bg-white/20 px-4 py-1 rounded-full mb-2">
-            <p className="text-primary-foreground/95 text-sm font-semibold">
-              Smart India Hackathon 2025 | Problem ID: 25030
-            </p>
-          </div>
-          <p className="text-primary-foreground/90 text-lg">
-            Team CODEHEX - Empowering farmers with AI-driven solutions
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            {t('dashboard.hero.subtitle')}
           </p>
         </div>
       </div>
@@ -92,14 +90,21 @@ const Dashboard = () => {
           return (
             <Card key={index} className="shadow-card hover:shadow-elevated transition-shadow">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                  <span className={`text-xs font-medium ${stat.color}`}>{stat.change}</span>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{stat.title}</p>
+                    <h3 className="text-2xl font-bold">{stat.value}</h3>
+                  </div>
+                  <div className={`p-3 rounded-full ${stat.color}/10`}>
+                    <Icon className={`w-6 h-6 ${stat.color}`} />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.title}</p>
-                </div>
+                <p className="text-xs mt-2 text-muted-foreground">
+                  <span className={stat.change.startsWith('+') ? 'text-success' : 'text-destructive'}>
+                    {stat.change}
+                  </span>{' '}
+                  {t('dashboard.stats.fromLastMonth')}
+                </p>
               </CardContent>
             </Card>
           );
@@ -109,21 +114,18 @@ const Dashboard = () => {
       {/* Features Overview */}
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle>Platform Features</CardTitle>
+          <CardTitle>{t('dashboard.features.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="p-4 rounded-lg border bg-card hover:shadow-soft transition-shadow"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-foreground">{feature.title}</h4>
+              <div key={index} className="border rounded-lg p-4 hover:bg-accent/50 transition-colors">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-medium">{feature.title}</h3>
                   <span className={`text-xs px-2 py-1 rounded-full ${
-                    feature.status === "Available" 
-                      ? "bg-success/20 text-success" 
-                      : "bg-warning/20 text-warning"
+                    feature.status === t('common.available') ? 'bg-success/10 text-success' :
+                    feature.status === t('common.comingSoon') ? 'bg-warning/10 text-warning' :
+                    'bg-muted text-muted-foreground'
                   }`}>
                     {feature.status}
                   </span>

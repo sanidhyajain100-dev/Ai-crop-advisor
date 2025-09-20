@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { translations, Translation } from '../utils/translations';
 
 interface LanguageContextType {
@@ -18,20 +18,34 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState(() => {
-    // Get saved language from localStorage or default to English
-    return localStorage.getItem('language') || 'en';
-  });
+  const [language, setLanguage] = useState('en');
+  const [_, forceUpdate] = useState({});
 
+  // Load language from localStorage on initial render
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') || 'en';
+    if (savedLanguage !== language) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  // Handle language changes
   const handleSetLanguage = (lang: string) => {
-    setLanguage(lang);
-    localStorage.setItem('language', lang);
+    if (lang !== language) {
+      setLanguage(lang);
+      localStorage.setItem('language', lang);
+      // Force a re-render to update all components
+      forceUpdate({});
+    }
   };
 
+  // Get current translations or fallback to English
+  const currentTranslations = translations[language] || translations.en;
+  
   const value = {
     language,
     setLanguage: handleSetLanguage,
-    t: translations[language] || translations.en
+    t: currentTranslations
   };
 
   return (
