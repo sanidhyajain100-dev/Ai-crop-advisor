@@ -233,10 +233,12 @@ export const cropService = {
   // Get dashboard statistics
   getDashboardStats: async (): Promise<DashboardStatsResponse> => {
     try {
-      const response = await axios.get(`${API_URL}/dashboard-stats`);
+      const response = await axios.get(`${API_URL}/dashboard-stats`, {
+        timeout: 8000, // 8 second timeout
+      });
       return response.data;
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
+      console.log('Dashboard stats unavailable, using fallback data');
       throw error;
     }
   },
