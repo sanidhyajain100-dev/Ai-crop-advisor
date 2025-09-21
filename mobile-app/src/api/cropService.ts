@@ -1,9 +1,12 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 
 // Base URL for the backend API
-const API_URL = 'https://web-production-d6596.up.railway.app/api';
+// Use Railway production URL for both development and production
+const API_URL = 'https://web-production-af45d.up.railway.app/api';
 
 console.log('Using API URL:', API_URL);
+console.log('Platform:', Platform.OS);
 
 // Types
 export interface CropPredictionRequest {
@@ -156,28 +159,73 @@ export const cropService = {
   // Upload image for disease detection
   detectDisease: async (imageUri: string): Promise<DiseaseDetectionResponse> => {
     try {
-      // First upload the image
+      console.log('Starting disease detection for image:', imageUri);
+      
+      // Create FormData for React Native
       const formData = new FormData();
-      formData.append('image', {
+      
+      // For React Native, we need to handle the image differently
+      const imageFile = {
         uri: imageUri,
         type: 'image/jpeg',
         name: 'plant_image.jpg',
-      } as any);
+      };
+      
+      // Append the image to FormData
+      formData.append('image', imageFile as any);
 
+      console.log('Uploading image to:', `${API_URL}/upload-image`);
+      
+      // First upload the image
       const uploadResponse = await axios.post(`${API_URL}/upload-image`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 30000, // 30 second timeout
       });
 
+      console.log('Image upload response:', uploadResponse.data);
+
+      if (!uploadResponse.data.success || !uploadResponse.data.image_base64) {
+        throw new Error('Failed to upload image or get base64 data');
+      }
+
+      console.log('Sending to disease detection endpoint');
+      
       // Then detect disease using the uploaded image
       const diseaseResponse = await axios.post(`${API_URL}/disease-detection`, {
         image_base64: uploadResponse.data.image_base64,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // 30 second timeout
       });
+
+      console.log('Disease detection response:', diseaseResponse.data);
+
+      if (!diseaseResponse.data.success) {
+        throw new Error('Disease detection failed');
+      }
 
       return diseaseResponse.data;
     } catch (error) {
       console.error('Error detecting disease:', error);
+      
+      // Provide more specific error information
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          console.error('Response error:', error.response.status, error.response.data);
+          throw new Error(`Server error: ${error.response.status} - ${error.response.data?.error || 'Unknown error'}`);
+        } else if (error.request) {
+          console.error('Request error:', error.request);
+          throw new Error('Network error: Unable to reach server');
+        } else {
+          console.error('Setup error:', error.message);
+          throw new Error(`Request setup error: ${error.message}`);
+        }
+      }
+      
       throw error;
     }
   },

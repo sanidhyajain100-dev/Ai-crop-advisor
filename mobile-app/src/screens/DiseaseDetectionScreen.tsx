@@ -58,11 +58,28 @@ const DiseaseDetectionScreen = () => {
 
     try {
       setLoading(true);
+      console.log('Starting image analysis...');
       const response = await cropService.detectDisease(image);
+      console.log('Analysis complete:', response);
       setResult(response);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to analyze image. Please try again.');
-      console.error(error);
+    } catch (error: any) {
+      console.error('Disease detection error:', error);
+      
+      let errorMessage = 'Failed to analyze image. Please try again.';
+      
+      if (error.message) {
+        if (error.message.includes('Network error')) {
+          errorMessage = 'Network error: Please check your internet connection and try again.';
+        } else if (error.message.includes('Server error')) {
+          errorMessage = 'Server error: The service is temporarily unavailable. Please try again later.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Request timeout: The analysis is taking too long. Please try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      Alert.alert('Analysis Failed', errorMessage);
     } finally {
       setLoading(false);
     }
