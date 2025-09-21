@@ -342,6 +342,10 @@ const DashboardScreen = ({ navigation }: any) => {
             <MaterialCommunityIcons name="menu" size={28} color="white" />
           </TouchableOpacity>
           <View style={styles.headerContent}>
+            <View style={styles.teamInfo}>
+              <Text style={styles.teamName}>Team: CodeHex</Text>
+              <Text style={styles.problemStatement}>Problem Statement: 25030</Text>
+            </View>
             <Title style={styles.headerTitle}>{t('dashboard.welcomeTitle')}</Title>
             <Paragraph style={styles.headerSubtitle}>
               {t('dashboard.subtitle')}
@@ -490,6 +494,25 @@ const styles = StyleSheet.create({
   headerContent: {
     alignItems: 'center',
     paddingHorizontal: 10,
+  },
+  teamInfo: {
+    alignItems: 'center',
+    marginBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  teamName: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  problemStatement: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 12,
+    fontWeight: '600',
   },
   logoContainer: {
     marginBottom: 12,
