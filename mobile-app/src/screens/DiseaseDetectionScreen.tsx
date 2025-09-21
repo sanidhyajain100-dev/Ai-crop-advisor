@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image, Alert, ScrollView } from 'react-native';
 import { Button, Card, Title, Paragraph, Text } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
-import { cropService, DiseaseDetectionResponse } from '../api/cropService';
+import { cropService, DiseaseDetectionResponse, getBestApiUrl } from '../api/cropService';
+import { runNetworkDiagnostic, formatDiagnosticResults } from '../utils/networkDiagnostic';
 
 const DiseaseDetectionScreen = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -50,6 +51,42 @@ const DiseaseDetectionScreen = () => {
     }
   };
 
+  const testConnectivity = async () => {
+    try {
+      setLoading(true);
+      console.log('Running comprehensive network diagnostic...');
+      
+      const diagnosticResults = await runNetworkDiagnostic();
+      const report = formatDiagnosticResults(diagnosticResults);
+      
+      console.log('Network Diagnostic Results:', report);
+      
+      // Check if Railway API is working
+      const railwayResult = diagnosticResults.find(r => r.url.includes('railway'));
+      
+      if (railwayResult?.status === 'success') {
+        Alert.alert('✅ Connection Test Passed', 'Railway API is accessible. The disease detection should work.');
+      } else {
+        Alert.alert(
+          '❌ Connection Test Failed', 
+          `Railway API is not accessible.\n\nError: ${railwayResult?.error}\n\nFull diagnostic report logged to console.`,
+          [
+            { text: 'OK', style: 'default' },
+            { 
+              text: 'View Details', 
+              onPress: () => Alert.alert('Network Diagnostic Report', report)
+            }
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error('Diagnostic failed:', error);
+      Alert.alert('Diagnostic Failed', 'Unable to run network diagnostic. Please check your internet connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const analyzeImage = async () => {
     if (!image) {
       Alert.alert('No Image', 'Please select or take a photo first');
@@ -74,6 +111,8 @@ const DiseaseDetectionScreen = () => {
           errorMessage = 'Server error: The service is temporarily unavailable. Please try again later.';
         } else if (error.message.includes('timeout')) {
           errorMessage = 'Request timeout: The analysis is taking too long. Please try again.';
+        } else if (error.message.includes('Unable to connect')) {
+          errorMessage = 'Connection failed: Unable to reach the server. Please check your internet connection.';
         } else {
           errorMessage = error.message;
         }
@@ -111,6 +150,19 @@ const DiseaseDetectionScreen = () => {
                 icon="image"
               >
                 Gallery
+              </Button>
+            </View>
+            
+            <View style={styles.testButtonContainer}>
+              <Button 
+                mode="outlined" 
+                onPress={testConnectivity} 
+                style={styles.testButton}
+                icon="wifi"
+                loading={loading}
+                disabled={loading}
+              >
+                Test Connection
               </Button>
             </View>
 
@@ -228,6 +280,12 @@ const styles = StyleSheet.create({
   },
   galleryButton: {
     backgroundColor: '#8BC34A',
+  },
+  testButtonContainer: {
+    marginBottom: 16,
+  },
+  testButton: {
+    borderColor: '#4CAF50',
   },
   imageContainer: {
     alignItems: 'center',

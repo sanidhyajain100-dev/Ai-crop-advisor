@@ -3,10 +3,28 @@ import { Platform } from 'react-native';
 
 // Base URL for the backend API
 // Use Railway production URL for both development and production
-const API_URL = 'https://web-production-af45d.up.railway.app/api';
+const RAILWAY_API_URL = 'https://web-production-af45d.up.railway.app/api';
+const LOCAL_API_URL = 'http://10.0.2.2:5000/api'; // Android emulator localhost
+const LOCALHOST_API_URL = 'http://localhost:5000/api'; // iOS simulator
+
+// Try Railway first, fallback to local if needed
+const API_URL = RAILWAY_API_URL;
 
 console.log('Using API URL:', API_URL);
 console.log('Platform:', Platform.OS);
+
+// Network connectivity test function
+const testConnectivity = async (url: string): Promise<boolean> => {
+  try {
+    const response = await axios.get(`${url}/dashboard-stats`, {
+      timeout: 5000,
+    });
+    return response.status === 200;
+  } catch (error) {
+    console.log(`Connectivity test failed for ${url}:`, error);
+    return false;
+  }
+};
 
 // Types
 export interface CropPredictionRequest {
@@ -117,6 +135,27 @@ export interface DashboardStatsResponse {
   last_updated: string;
 }
 
+// Get the best available API URL
+export const getBestApiUrl = async (): Promise<string> => {
+  console.log('Testing connectivity to find best API URL...');
+  
+  // Test Railway first
+  if (await testConnectivity(RAILWAY_API_URL)) {
+    console.log('Railway API is available');
+    return RAILWAY_API_URL;
+  }
+  
+  // Test local APIs as fallback
+  const localUrl = Platform.OS === 'android' ? LOCAL_API_URL : LOCALHOST_API_URL;
+  if (await testConnectivity(localUrl)) {
+    console.log('Local API is available');
+    return localUrl;
+  }
+  
+  console.log('No API available, defaulting to Railway');
+  return RAILWAY_API_URL; // Default fallback
+};
+
 // API functions
 export const cropService = {
   // Get crop recommendation
@@ -156,10 +195,11 @@ export const cropService = {
     }
   },
 
-  // Upload image for disease detection
+  // Upload image for disease detection with fallback mechanism
   detectDisease: async (imageUri: string): Promise<DiseaseDetectionResponse> => {
-    try {
+    const tryDetectWithUrl = async (apiUrl: string): Promise<DiseaseDetectionResponse> => {
       console.log('Starting disease detection for image:', imageUri);
+      console.log('Using API URL:', apiUrl);
       
       // Create FormData for React Native
       const formData = new FormData();
@@ -174,14 +214,14 @@ export const cropService = {
       // Append the image to FormData
       formData.append('image', imageFile as any);
 
-      console.log('Uploading image to:', `${API_URL}/upload-image`);
+      console.log('Uploading image to:', `${apiUrl}/upload-image`);
       
       // First upload the image
-      const uploadResponse = await axios.post(`${API_URL}/upload-image`, formData, {
+      const uploadResponse = await axios.post(`${apiUrl}/upload-image`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        timeout: 30000, // 30 second timeout
+        timeout: 15000, // Reduced timeout for faster fallback
       });
 
       console.log('Image upload response:', uploadResponse.data);
@@ -193,13 +233,13 @@ export const cropService = {
       console.log('Sending to disease detection endpoint');
       
       // Then detect disease using the uploaded image
-      const diseaseResponse = await axios.post(`${API_URL}/disease-detection`, {
+      const diseaseResponse = await axios.post(`${apiUrl}/disease-detection`, {
         image_base64: uploadResponse.data.image_base64,
       }, {
         headers: {
           'Content-Type': 'application/json',
         },
-        timeout: 30000, // 30 second timeout
+        timeout: 15000, // Reduced timeout for faster fallback
       });
 
       console.log('Disease detection response:', diseaseResponse.data);
@@ -209,24 +249,52 @@ export const cropService = {
       }
 
       return diseaseResponse.data;
-    } catch (error) {
-      console.error('Error detecting disease:', error);
+    };
+
+    // Retry mechanism with exponential backoff
+    const maxRetries = 2;
+    let lastError: any;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Attempt ${attempt + 1}/${maxRetries + 1} - Trying Railway API`);
+        return await tryDetectWithUrl(RAILWAY_API_URL);
+      } catch (error) {
+        lastError = error;
+        console.warn(`Railway API attempt ${attempt + 1} failed:`, error);
+        
+        if (attempt < maxRetries) {
+          // Wait before retry (exponential backoff)
+          const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s...
+          console.log(`Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    // Try local API as final fallback (for development)
+    try {
+      console.log('Trying local API as fallback...');
+      const localUrl = Platform.OS === 'android' ? LOCAL_API_URL : LOCALHOST_API_URL;
+      return await tryDetectWithUrl(localUrl);
+    } catch (localError) {
+      console.error('Local API also failed:', localError);
       
-      // Provide more specific error information
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          console.error('Response error:', error.response.status, error.response.data);
-          throw new Error(`Server error: ${error.response.status} - ${error.response.data?.error || 'Unknown error'}`);
-        } else if (error.request) {
-          console.error('Request error:', error.request);
-          throw new Error('Network error: Unable to reach server');
+      // Provide more specific error information based on the last Railway error
+      if (axios.isAxiosError(lastError)) {
+        if (lastError.response) {
+          console.error('Response error:', lastError.response.status, lastError.response.data);
+          throw new Error(`Server error: ${lastError.response.status} - ${lastError.response.data?.error || 'Unknown error'}`);
+        } else if (lastError.request) {
+          console.error('Request error:', lastError.request);
+          throw new Error('Network error: Unable to reach server. Please check your internet connection and try again.');
         } else {
-          console.error('Setup error:', error.message);
-          throw new Error(`Request setup error: ${error.message}`);
+          console.error('Setup error:', lastError.message);
+          throw new Error(`Request setup error: ${lastError.message}`);
         }
       }
       
-      throw error;
+      throw new Error('Unable to connect to any server after multiple attempts. Please check your internet connection and try again.');
     }
   },
 
