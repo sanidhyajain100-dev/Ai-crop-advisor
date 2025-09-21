@@ -1,8 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Import your screens
 import DashboardScreen from '../screens/DashboardScreen';
-import HomeScreen from '../screens/HomeScreen';
 import CropRecommendationScreen from '../screens/CropRecommendationScreen';
 import DiseaseDetectionScreen from '../screens/DiseaseDetectionScreen';
 import WeatherInfoScreen from '../screens/WeatherInfoScreen';
@@ -11,85 +12,122 @@ import CropCalendarScreen from '../screens/CropCalendarScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 
+// Define the parameter types for the stack navigator
 export type RootStackParamList = {
   Dashboard: undefined;
-  Home: undefined;
   CropRecommendation: undefined;
   DiseaseDetection: undefined;
   WeatherInfo: undefined;
   FarmAssistant: undefined;
   Chatbot: undefined;
   CropCalendar: undefined;
-  Settings: undefined;
   Community: undefined;
+  Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Main App Navigator
 const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Dashboard"
         screenOptions={{
-          headerStyle: {
-            backgroundColor: '#4CAF50',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerShown: false, // Hide headers since we have custom headers in screens
         }}
       >
         <Stack.Screen 
           name="Dashboard" 
           component={DashboardScreen} 
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Home" 
-          component={HomeScreen} 
-          options={{ title: 'AI Crop Advisor' }}
         />
         <Stack.Screen 
           name="CropRecommendation" 
           component={CropRecommendationScreen} 
-          options={{ title: 'Crop Recommendation' }}
+          options={{ 
+            headerShown: true,
+            title: 'Crop Recommendation',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
         <Stack.Screen 
           name="DiseaseDetection" 
           component={DiseaseDetectionScreen} 
-          options={{ title: 'Disease Detection' }}
+          options={{ 
+            headerShown: true,
+            title: 'Disease Detection',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
         <Stack.Screen 
           name="WeatherInfo" 
           component={WeatherInfoScreen} 
-          options={{ title: 'Weather Information' }}
+          options={{ 
+            headerShown: true,
+            title: 'Weather Information',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
         <Stack.Screen 
           name="FarmAssistant" 
           component={FarmAssistantScreen} 
-          options={{ title: 'Farm Assistant' }}
+          options={{ 
+            headerShown: true,
+            title: 'Farm Assistant',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
         <Stack.Screen 
           name="Chatbot" 
           component={FarmAssistantScreen} 
-          options={{ title: 'AI Assistant' }}
+          options={{ 
+            headerShown: true,
+            title: 'AI Assistant',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
         <Stack.Screen 
           name="CropCalendar" 
           component={CropCalendarScreen} 
-          options={{ title: 'Crop Calendar' }}
-        />
-        <Stack.Screen 
-          name="Settings" 
-          component={SettingsScreen} 
-          options={{ title: 'Settings' }}
+          options={{ 
+            headerShown: true,
+            title: 'Crop Calendar',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
         <Stack.Screen 
           name="Community" 
           component={CommunityScreen} 
-          options={{ title: 'Community' }}
+          options={{ 
+            headerShown: true,
+            title: 'Community',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen} 
+          options={{ 
+            headerShown: true,
+            title: 'Settings',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

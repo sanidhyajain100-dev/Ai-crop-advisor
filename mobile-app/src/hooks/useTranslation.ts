@@ -1,25 +1,38 @@
-import { useTranslation as useI18nTranslation } from 'react-i18next';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const useTranslation = () => {
-  const { t, i18n } = useI18nTranslation();
-
-  const changeLanguage = (language: string) => {
-    i18n.changeLanguage(language);
-  };
-
-  const currentLanguage = i18n.language;
+  const { t, language, setLanguage, isLoading } = useLanguage();
   
-  // Helper function for nested translations
-  const translate = (key: string, options?: any) => {
-    return t(key, options || {});
+  // Helper function to translate nested keys
+  const translate = (key: string, defaultValue: string = ''): string => {
+    try {
+      // Handle nested keys like 'navigation.dashboard'
+      const keys = key.split('.');
+      let result: any = t;
+      
+      for (const k of keys) {
+        if (result && typeof result === 'object' && k in result) {
+          result = result[k];
+        } else {
+          console.warn(`Translation key not found: ${key}`);
+          return defaultValue || key;
+        }
+      }
+      
+      return typeof result === 'string' ? result : defaultValue || key;
+    } catch (e) {
+      console.warn(`Translation error for key: ${key}`, e);
+      return defaultValue || key;
+    }
   };
 
   return {
     t: translate,
-    i18n,
-    changeLanguage,
-    currentLanguage,
-    isHindi: currentLanguage === 'hi'
+    language,
+    setLanguage,
+    isLoading,
+    isHindi: language === 'hi',
+    isEnglish: language === 'en'
   };
 };
 

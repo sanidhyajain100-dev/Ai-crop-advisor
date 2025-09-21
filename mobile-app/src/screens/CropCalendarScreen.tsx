@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, Text, Chip } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { Card, Title, Paragraph, Text, Button, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { NavigationProp } from '@react-navigation/native';
+
+const { width } = Dimensions.get('window');
 
 interface CropSeason {
   crop: string;
@@ -15,11 +16,7 @@ interface CropSeason {
   color: string;
 }
 
-interface CropCalendarScreenProps {
-  navigation: NavigationProp<any>;
-}
-
-const CropCalendarScreen = ({ navigation }: CropCalendarScreenProps) => {
+const CropCalendarScreen = ({ navigation }: any) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedSeason, setSelectedSeason] = useState<'All' | 'Kharif' | 'Rabi' | 'Zaid'>('All');
 
@@ -28,7 +25,7 @@ const CropCalendarScreen = ({ navigation }: CropCalendarScreenProps) => {
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
-  const seasons: ('All' | 'Kharif' | 'Rabi' | 'Zaid')[] = ['All', 'Kharif', 'Rabi', 'Zaid'];
+  const seasons = ['All', 'Kharif', 'Rabi', 'Zaid'];
 
   const cropCalendar: CropSeason[] = [
     {
@@ -191,7 +188,7 @@ const CropCalendarScreen = ({ navigation }: CropCalendarScreenProps) => {
                 <Chip
                   key={season}
                   selected={selectedSeason === season}
-                  onPress={() => setSelectedSeason(season as 'All' | 'Kharif' | 'Rabi' | 'Zaid')}
+                  onPress={() => setSelectedSeason(season as any)}
                   style={styles.seasonChip}
                   textStyle={styles.seasonText}
                 >
@@ -212,7 +209,7 @@ const CropCalendarScreen = ({ navigation }: CropCalendarScreenProps) => {
             {cropsToPlant.length > 0 && (
               <View style={styles.activitySection}>
                 <View style={styles.activityHeader}>
-                  <MaterialCommunityIcons name="leaf" size={20} color="#4CAF50" />
+                  <MaterialCommunityIcons name="seed" size={20} color="#4CAF50" />
                   <Text style={styles.activityTitle}>Time to Plant</Text>
                 </View>
                 <View style={styles.cropList}>
@@ -232,7 +229,7 @@ const CropCalendarScreen = ({ navigation }: CropCalendarScreenProps) => {
             {cropsToHarvest.length > 0 && (
               <View style={styles.activitySection}>
                 <View style={styles.activityHeader}>
-                  <MaterialCommunityIcons name="basket" size={20} color="#FF9800" />
+                  <MaterialCommunityIcons name="harvest" size={20} color="#FF9800" />
                   <Text style={styles.activityTitle}>Time to Harvest</Text>
                 </View>
                 <View style={styles.cropList}>
@@ -278,13 +275,13 @@ const CropCalendarScreen = ({ navigation }: CropCalendarScreenProps) => {
                     
                     <View style={styles.cropDetails}>
                       <View style={styles.cropDetailRow}>
-                        <MaterialCommunityIcons name="leaf" size={16} color="#4CAF50" />
+                        <MaterialCommunityIcons name="seed" size={16} color="#4CAF50" />
                         <Text style={styles.cropDetailText}>
                           Plant: {crop.plantingMonths.join(', ')}
                         </Text>
                       </View>
                       <View style={styles.cropDetailRow}>
-                        <MaterialCommunityIcons name="basket" size={16} color="#FF9800" />
+                        <MaterialCommunityIcons name="harvest" size={16} color="#FF9800" />
                         <Text style={styles.cropDetailText}>
                           Harvest: {crop.harvestMonths.join(', ')}
                         </Text>
@@ -368,7 +365,7 @@ const styles = StyleSheet.create({
   seasonContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    
+    gap: 8,
   },
   seasonChip: {
     marginRight: 8,
