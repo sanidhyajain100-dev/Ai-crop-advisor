@@ -20,10 +20,7 @@ CORS(app)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# API Keys
-GEMINI_API_KEY = os.environ.get('Gemini_API_key')
+logger = loggEMINI_API_KEY = os.environ.get('Gemini_API_key')
 WEATHER_API_KEY = os.environ.get('Weather_API_key')
 
 # Configure Gemini
@@ -392,6 +389,244 @@ def record_prediction():
     except Exception as e:
         logger.error(f"Record prediction error: {e}")
         return jsonify({'success': False, 'error': 'Failed to record prediction'}), 500
+
+@app.route('/api/crop-calendar', methods=['GET'])
+def get_crop_calendar():
+    """Get comprehensive crop calendar data"""
+    try:
+        import datetime
+        
+        # Enhanced crop calendar data with planting and harvesting months
+        crop_calendar = [
+            {
+                'crop': 'Rice',
+                'emoji': '🌾',
+                'season': 'Kharif',
+                'plantingMonths': ['Jun', 'Jul', 'Aug'],
+                'harvestMonths': ['Oct', 'Nov', 'Dec'],
+                'duration': '120-150 days',
+                'tips': 'Plant during monsoon. Requires flooded fields.',
+                'color': '#4CAF50',
+                'yield': '3-4 tons/hectare',
+                'market_price': '₹2000-2500/quintal'
+            },
+            {
+                'crop': 'Wheat',
+                'emoji': '🌾',
+                'season': 'Rabi',
+                'plantingMonths': ['Nov', 'Dec', 'Jan'],
+                'harvestMonths': ['Mar', 'Apr', 'May'],
+                'duration': '120-150 days',
+                'tips': 'Plant in winter. Requires cool weather for growth.',
+                'color': '#FF9800',
+                'yield': '2-3 tons/hectare',
+                'market_price': '₹2100-2600/quintal'
+            },
+            {
+                'crop': 'Maize',
+                'emoji': '🌽',
+                'season': 'Kharif',
+                'plantingMonths': ['Jun', 'Jul'],
+                'harvestMonths': ['Sep', 'Oct'],
+                'duration': '90-120 days',
+                'tips': 'Can be grown year-round with irrigation.',
+                'color': '#FFC107',
+                'yield': '4-6 tons/hectare',
+                'market_price': '₹1800-2200/quintal'
+            },
+            {
+                'crop': 'Cotton',
+                'emoji': '🌿',
+                'season': 'Kharif',
+                'plantingMonths': ['Apr', 'May', 'Jun'],
+                'harvestMonths': ['Oct', 'Nov', 'Dec'],
+                'duration': '180-200 days',
+                'tips': 'Requires warm weather and moderate rainfall.',
+                'color': '#E91E63',
+                'yield': '1-2 tons/hectare',
+                'market_price': '₹5500-6500/quintal'
+            },
+            {
+                'crop': 'Sugarcane',
+                'emoji': '🎋',
+                'season': 'Year-round',
+                'plantingMonths': ['Feb', 'Mar', 'Oct', 'Nov'],
+                'harvestMonths': ['Dec', 'Jan', 'Feb', 'Mar'],
+                'duration': '12-18 months',
+                'tips': 'Long duration crop. Plant in spring or autumn.',
+                'color': '#9C27B0',
+                'yield': '70-100 tons/hectare',
+                'market_price': '₹280-350/quintal'
+            },
+            {
+                'crop': 'Potato',
+                'emoji': '🥔',
+                'season': 'Rabi',
+                'plantingMonths': ['Oct', 'Nov', 'Dec'],
+                'harvestMonths': ['Jan', 'Feb', 'Mar'],
+                'duration': '90-120 days',
+                'tips': 'Cool weather crop. Avoid frost during harvest.',
+                'color': '#795548',
+                'yield': '20-25 tons/hectare',
+                'market_price': '₹800-1500/quintal'
+            },
+            {
+                'crop': 'Tomato',
+                'emoji': '🍅',
+                'season': 'Year-round',
+                'plantingMonths': ['Jun', 'Jul', 'Oct', 'Nov'],
+                'harvestMonths': ['Sep', 'Oct', 'Jan', 'Feb'],
+                'duration': '90-120 days',
+                'tips': 'Can be grown in multiple seasons with proper care.',
+                'color': '#F44336',
+                'yield': '40-60 tons/hectare',
+                'market_price': '₹1000-2000/quintal'
+            },
+            {
+                'crop': 'Mustard',
+                'emoji': '🌻',
+                'season': 'Rabi',
+                'plantingMonths': ['Oct', 'Nov'],
+                'harvestMonths': ['Feb', 'Mar'],
+                'duration': '90-110 days',
+                'tips': 'Cool season oilseed crop.',
+                'color': '#FFEB3B',
+                'yield': '1.5-2 tons/hectare',
+                'market_price': '₹4500-5500/quintal'
+            }
+        ]
+        
+        # Generate upcoming events based on current month
+        current_month = datetime.datetime.now().month
+        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        current_month_name = month_names[current_month - 1]
+        
+        upcoming_events = []
+        
+        # Find crops to plant this month
+        for crop in crop_calendar:
+            if current_month_name in crop['plantingMonths']:
+                upcoming_events.append({
+                    'id': f"plant_{crop['crop'].lower()}",
+                    'title': f"{crop['crop']} Planting",
+                    'date': "This month",
+                    'type': "sowing",
+                    'crop': crop['crop'],
+                    'description': f"Optimal time for {crop['crop'].lower()} planting in {crop['season']} season",
+                    'emoji': crop['emoji']
+                })
+            
+            if current_month_name in crop['harvestMonths']:
+                upcoming_events.append({
+                    'id': f"harvest_{crop['crop'].lower()}",
+                    'title': f"{crop['crop']} Harvest",
+                    'date': "This month",
+                    'type': "harvest",
+                    'crop': crop['crop'],
+                    'description': f"Harvest time for {crop['crop'].lower()} crop",
+                    'emoji': crop['emoji']
+                })
+        
+        # Add some general farming activities
+        general_events = [
+            {
+                'id': 'irrigation_check',
+                'title': 'Irrigation System Check',
+                'date': 'Weekly',
+                'type': 'irrigation',
+                'crop': 'All crops',
+                'description': 'Regular check of irrigation systems and water supply',
+                'emoji': '💧'
+            },
+            {
+                'id': 'fertilizer_application',
+                'title': 'Fertilizer Application',
+                'date': 'Monthly',
+                'type': 'fertilizer',
+                'crop': 'Active crops',
+                'description': 'Apply appropriate fertilizers based on crop growth stage',
+                'emoji': '🌱'
+            }
+        ]
+        
+        upcoming_events.extend(general_events)
+        
+        return jsonify({
+            'success': True,
+            'crop_calendar': crop_calendar,
+            'upcoming_events': upcoming_events[:6],  # Limit to 6 events
+            'current_month': current_month_name,
+            'seasons': ['All', 'Kharif', 'Rabi', 'Zaid'],
+            'months': month_names,
+            'weather_recommendation': {
+                'title': 'Weather-Based Recommendations',
+                'description': 'Current conditions are favorable for field activities. Monitor weather forecasts for planning.',
+                'favorable': True
+            },
+            'last_updated': datetime.datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Crop calendar error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch crop calendar data'}), 500
+
+@app.route('/api/crop-calendar/month/<int:month>', methods=['GET'])
+def get_month_activities(month):
+    """Get activities for a specific month"""
+    try:
+        if month < 1 or month > 12:
+            return jsonify({'success': False, 'error': 'Invalid month'}), 400
+            
+        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        month_name = month_names[month - 1]
+        
+        # Get crops for this month from the database
+        crops_to_plant = []
+        crops_to_harvest = []
+        
+        for crop_name, crop_info in crop_database.items():
+            # This is a simplified version - in a real app, you'd have proper month data
+            if crop_name in ['rice', 'maize'] and month in [6, 7, 8]:  # Kharif planting
+                crops_to_plant.append({
+                    'crop': crop_name.title(),
+                    'emoji': crop_info['emoji'],
+                    'duration': crop_info['duration'],
+                    'season': crop_info['season']
+                })
+            elif crop_name in ['wheat', 'potato'] and month in [11, 12, 1]:  # Rabi planting
+                crops_to_plant.append({
+                    'crop': crop_name.title(),
+                    'emoji': crop_info['emoji'],
+                    'duration': crop_info['duration'],
+                    'season': crop_info['season']
+                })
+            elif crop_name in ['rice', 'maize'] and month in [10, 11, 12]:  # Kharif harvest
+                crops_to_harvest.append({
+                    'crop': crop_name.title(),
+                    'emoji': crop_info['emoji'],
+                    'duration': crop_info['duration'],
+                    'season': crop_info['season']
+                })
+            elif crop_name in ['wheat', 'potato'] and month in [3, 4, 5]:  # Rabi harvest
+                crops_to_harvest.append({
+                    'crop': crop_name.title(),
+                    'emoji': crop_info['emoji'],
+                    'duration': crop_info['duration'],
+                    'season': crop_info['season']
+                })
+        
+        return jsonify({
+            'success': True,
+            'month': month_name,
+            'month_number': month,
+            'crops_to_plant': crops_to_plant,
+            'crops_to_harvest': crops_to_harvest,
+            'activities_count': len(crops_to_plant) + len(crops_to_harvest)
+        })
+    except Exception as e:
+        logger.error(f"Month activities error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to fetch month activities'}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

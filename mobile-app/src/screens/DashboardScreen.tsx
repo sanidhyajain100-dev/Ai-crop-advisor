@@ -286,6 +286,7 @@ const DashboardScreen = ({ navigation }: any) => {
               { title: t('navigation.diseaseDetection'), icon: 'camera-plus', screen: 'DiseaseDetection' },
               { title: t('navigation.aiAssistant'), icon: 'robot', screen: 'Chatbot' },
               { title: t('navigation.cropCalendar'), icon: 'calendar', screen: 'CropCalendar' },
+              { title: 'Business Model', icon: 'office-building', screen: 'BusinessModel' },
               { title: t('navigation.community'), icon: 'account-group', screen: 'Community' },
               { title: t('navigation.settings'), icon: 'cog', screen: 'Settings' },
             ].map((item, index) => (
