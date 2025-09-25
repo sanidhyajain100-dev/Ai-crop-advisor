@@ -218,7 +218,7 @@ def generate_agricultural_advisory(weather_data):
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({'message': 'AI Crop Advisor Running', 'status': 'OK'})
+    return jsonify({'message': 'KrishiMitra API Running', 'status': 'OK'})
 
 @app.route('/api/predict', methods=['POST'])
 def predict():

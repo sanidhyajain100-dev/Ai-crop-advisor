@@ -31,7 +31,7 @@ const CommunityScreen = ({ navigation }: any) => {
       avatar: '👨‍🌾',
       location: 'Punjab, India',
       timeAgo: '2 hours ago',
-      content: 'Just harvested my wheat crop using the recommendations from CropAI! Got 15% better yield than last year. The weather alerts really helped me time the harvest perfectly.',
+      content: 'Just harvested my wheat crop using the recommendations from KrishiMitra! Got 15% better yield than last year. The weather alerts really helped me time the harvest perfectly.',
       likes: 24,
       comments: 8,
       tags: ['wheat', 'harvest', 'success'],
@@ -394,7 +394,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 12,
     textAlign: 'left',
-    paddingVertical: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
   postTags: {
     flexDirection: 'row',
