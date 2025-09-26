@@ -39,9 +39,9 @@ Name: ai-crop-advisor-backend
 Environment: Python
 Region: Choose closest to your users
 Branch: main (or your default branch)
-Root Directory: (leave empty - uses repository root)
+Root Directory: . (repository root)
 Build Command: pip install -r requirements.txt
-Start Command: gunicorn --bind 0.0.0.0:$PORT app:app
+Start Command: python -m gunicorn --bind 0.0.0.0:$PORT app:app
 ```
 
 2. **Environment Variables** (Add in Render dashboard):
@@ -110,7 +110,13 @@ Note: Replace `ai-crop-advisor-backend` with your actual backend service name if
 
 ### Common Issues
 
-1. **Build Failures**:
+1. **"ModuleNotFoundError: No module named 'app'" Error**:
+   - Ensure Root Directory is set to `.` (repository root)
+   - Use start command: `python -m gunicorn --bind 0.0.0.0:$PORT app:app`
+   - Verify `app.py` is in the repository root, not in a subdirectory
+   - Check that the repository structure is correct
+
+2. **Build Failures**:
    - Check build logs in Render dashboard
    - Ensure all dependencies are in `requirements.txt` and `package.json`
    - Verify Python version compatibility

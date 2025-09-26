@@ -4,8 +4,9 @@ services:
     name: ai-crop-advisor-backend
     env: python
     plan: free
+    rootDir: .
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
+    startCommand: python -m gunicorn --bind 0.0.0.0:$PORT app:app
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
