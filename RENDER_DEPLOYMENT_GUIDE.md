@@ -41,8 +41,13 @@ Region: Choose closest to your users
 Branch: main (or your default branch)
 Root Directory: . (repository root)
 Build Command: pip install -r requirements.txt
-Start Command: python -m gunicorn --bind 0.0.0.0:$PORT app:app
+Start Command: python -m gunicorn --bind 0.0.0.0:$PORT wsgi:app
 ```
+
+**Alternative Start Commands** (try these if the above fails):
+- `python main.py`
+- `python -m gunicorn --bind 0.0.0.0:$PORT main:app`
+- `gunicorn --bind 0.0.0.0:$PORT wsgi:app`
 
 2. **Environment Variables** (Add in Render dashboard):
 ```
