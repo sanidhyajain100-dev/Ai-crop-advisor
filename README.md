@@ -156,7 +156,7 @@ start-dev.bat
 | **Backend** | Flask, Python 3.8+, Gunicorn |
 | **AI/ML** | Scikit-learn, Google Gemini AI, Pandas |
 | **APIs** | OpenWeatherMap, Google Generative AI |
-| **Deployment** | Heroku, Netlify, Expo EAS |
+| **Deployment** | Render, Railway, Vercel, Netlify |
 
 ---
 
@@ -182,6 +182,28 @@ We are a passionate team of developers and agricultural enthusiasts participatin
 
 ### 🎯 Our Mission
 To democratize access to intelligent agricultural guidance and empower farmers with AI-driven insights for sustainable and profitable farming.
+
+---
+
+## 🚀 Deployment
+
+### Render (Recommended)
+
+Deploy both backend and frontend on Render with our pre-configured setup:
+
+1. **Quick Deploy**: Use the `render.yaml` file for automatic service creation
+2. **Manual Setup**: Follow the detailed [Render Deployment Guide](RENDER_DEPLOYMENT_GUIDE.md)
+
+**Backend**: Web Service with Python + Flask  
+**Frontend**: Static Site with React + Vite
+
+### Other Platforms
+
+- **Railway**: Backend deployment with existing `railway.toml`
+- **Vercel**: Frontend deployment with existing `vercel.json`
+- **Netlify**: Alternative frontend hosting
+
+See [RENDER_DEPLOYMENT_GUIDE.md](RENDER_DEPLOYMENT_GUIDE.md) for complete deployment instructions.
 
 ---
 
