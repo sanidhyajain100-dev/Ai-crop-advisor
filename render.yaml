@@ -9,7 +9,7 @@ services:
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.7
+        value: 3.12.7
       - key: GEMINI_API_KEY
         sync: false  # Set this manually in Render dashboard
       - key: WEATHER_API_KEY
