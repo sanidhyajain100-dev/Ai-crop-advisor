@@ -19,12 +19,16 @@ CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# API Keys
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyD8Vb3TXMsoWVC9FAzBmdOXdhTHogBZeXk'
-WEATHER_API_KEY = os.environ.get('WEATHER_API_KEY') or '05f2aa91f5f9bad84b85669db209d61a'
+# API Keys (support both canonical and legacy variable names; no hardcoded defaults)
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or os.environ.get('Gemini_API_key')
+WEATHER_API_KEY = os.environ.get('WEATHER_API_KEY') or os.environ.get('Weather_API_key')
 
-# Configure Gemini
-genai.configure(api_key=GEMINI_API_KEY)
+# Configure Gemini only if key is present
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    logger.warning("GEMINI_API_KEY is not set; Gemini features will be disabled")
+
 logger.info(f"Gemini API configured: {'Yes' if GEMINI_API_KEY else 'No'}")
 logger.info(f"Weather API configured: {'Yes' if WEATHER_API_KEY else 'No'}")
 
