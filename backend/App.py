@@ -1,30 +1,48 @@
+#!/usr/bin/env python3
+
+# Debug information for Render deployment
+import os
+import sys
+print(f"=== RENDER DEBUG INFO ===")
+print(f"Current working directory: {os.getcwd()}")
+print(f"Python executable: {sys.executable}")
+print(f"Python path: {sys.path}")
+print(f"Files in current directory: {os.listdir('.')}")
+print(f"Environment variables: PORT={os.environ.get('PORT', 'Not set')}")
+print(f"=== END DEBUG INFO ===")
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
-import requests
-import os
-import logging
-import base64
-from PIL import Image
-import io
-from analytics import analytics_manager
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+import requests
+import google.generativeai as genai
+import logging
+import base64
 import random
-import os
+import datetime
 
 app = Flask(__name__)
 CORS(app)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = loggEMINI_API_KEY = os.environ.get('Gemini_API_key')
-WEATHER_API_KEY = os.environ.get('Weather_API_key')
+logger = logging.getLogger(__name__)
 
-# Configure Gemini
-genai.configure(api_key=GEMINI_API_KEY)
+# API Keys (support both canonical and legacy variable names; no hardcoded defaults)
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or os.environ.get('Gemini_API_key')
+WEATHER_API_KEY = os.environ.get('WEATHER_API_KEY') or os.environ.get('Weather_API_key')
+
+# Configure Gemini only if key is present
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    logger.warning("GEMINI_API_KEY is not set; Gemini features will be disabled")
+
+logger.info(f"Gemini API configured: {'Yes' if GEMINI_API_KEY else 'No'}")
+logger.info(f"Weather API configured: {'Yes' if WEATHER_API_KEY else 'No'}")
 
 # Combined training data (corrected - all arrays have 30 elements)
 training_data = {
@@ -102,123 +120,69 @@ disease_database = {
 # Weather function shared by both
 def get_weather_data(lat, lon):
     try:
-        # Get current weather
+        if not WEATHER_API_KEY:
+            logger.error("Weather API key not configured")
+            return None
+            
         url = "https://api.openweathermap.org/data/2.5/weather"
         params = {'lat': lat, 'lon': lon, 'appid': WEATHER_API_KEY, 'units': 'metric'}
         response = requests.get(url, params=params)
         
+        logger.info(f"Weather API response status: {response.status_code}")
+        
         if response.status_code == 200:
             data = response.json()
-            
-            # Get forecast data
-            forecast_url = "https://api.openweathermap.org/data/2.5/forecast"
-            forecast_response = requests.get(forecast_url, params=params)
-            forecast_data = forecast_response.json() if forecast_response.status_code == 200 else None
-            
-            # Generate mock forecast if API fails
-            forecast = []
-            if forecast_data:
-                # Process 3-day forecast from 5-day forecast data
-                for i in range(0, min(24, len(forecast_data['list'])), 8):  # Every 24 hours
-                    item = forecast_data['list'][i]
-                    forecast.append({
-                        'date': item['dt_txt'].split(' ')[0],
-                        'maxTemp': round(item['main']['temp_max']),
-                        'minTemp': round(item['main']['temp_min']),
-                        'condition': item['weather'][0]['description']
-                    })
-            else:
-                # Fallback mock forecast
-                import datetime
-                for i in range(3):
-                    date = (datetime.datetime.now() + datetime.timedelta(days=i+1)).strftime('%Y-%m-%d')
-                    forecast.append({
-                        'date': date,
-                        'maxTemp': round(data['main']['temp'] + random.uniform(-3, 3)),
-                        'minTemp': round(data['main']['temp'] - random.uniform(5, 10)),
-                        'condition': data['weather'][0]['description']
-                    })
-            
-            # Generate agricultural advisory based on weather
-            advisory = generate_agricultural_advisory(data)
-            
             return {
-                'success': True,
-                'location': {
-                    'city': data.get('name', 'Unknown'),
-                    'country': data.get('sys', {}).get('country', 'Unknown')
-                },
-                'current': {
-                    'temperature': round(data['main']['temp']),
-                    'humidity': data['main']['humidity'],
-                    'condition': data['weather'][0]['description'],
-                    'windSpeed': round(data.get('wind', {}).get('speed', 0) * 3.6),  # Convert m/s to km/h
-                    'precipitation': round(data.get('rain', {}).get('1h', 0), 1)  # mm in last hour
-                },
-                'forecast': forecast,
-                'agricultural_advisory': advisory
+                'temperature': data['main']['temp'],
+                'humidity': data['main']['humidity'],
+                'description': data['weather'][0]['description']
             }
+        else:
+            logger.error(f"Weather API error: {response.status_code} - {response.text}")
     except Exception as e:
         logger.error(f"Weather API error: {e}")
     return None
-
-def generate_agricultural_advisory(weather_data):
-    """Generate agricultural advisory based on weather conditions"""
-    advisory = []
-    temp = weather_data['main']['temp']
-    humidity = weather_data['main']['humidity']
-    condition = weather_data['weather'][0]['description'].lower()
-    
-    # Temperature-based advice
-    if temp > 35:
-        advisory.append({
-            'title': 'High Temperature Alert',
-            'description': 'Provide shade to crops and increase irrigation frequency. Avoid midday field work.'
-        })
-    elif temp < 10:
-        advisory.append({
-            'title': 'Cold Weather Warning',
-            'description': 'Protect sensitive crops from frost. Consider using mulch or row covers.'
-        })
-    
-    # Humidity-based advice
-    if humidity > 80:
-        advisory.append({
-            'title': 'High Humidity Alert',
-            'description': 'Monitor crops for fungal diseases. Ensure good air circulation and avoid overhead watering.'
-        })
-    elif humidity < 40:
-        advisory.append({
-            'title': 'Low Humidity Notice',
-            'description': 'Increase irrigation and consider mulching to retain soil moisture.'
-        })
-    
-    # Weather condition-based advice
-    if 'rain' in condition:
-        advisory.append({
-            'title': 'Rainy Weather Advisory',
-            'description': 'Avoid field operations. Check drainage systems and monitor for waterlogging.'
-        })
-    elif 'clear' in condition or 'sunny' in condition:
-        advisory.append({
-            'title': 'Clear Weather Opportunity',
-            'description': 'Good conditions for field operations, harvesting, and drying crops.'
-        })
-    
-    # Default advice if no specific conditions
-    if not advisory:
-        advisory.append({
-            'title': 'General Farming Advice',
-            'description': 'Monitor crop health regularly and maintain proper irrigation schedule.'
-        })
-    
-    return advisory
 
 # Routes merged and enhanced
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({'message': 'KrishiMitra API Running', 'status': 'OK'})
+    return jsonify({
+        'message': 'AI Crop Advisor Running', 
+        'status': 'OK',
+        'gemini_configured': bool(GEMINI_API_KEY),
+        'weather_configured': bool(WEATHER_API_KEY)
+    })
+
+@app.route('/api/test-keys', methods=['GET'])
+def test_keys():
+    try:
+        # Test Gemini API
+        model_ai = genai.GenerativeModel('gemini-1.5-flash')
+        gemini_response = model_ai.generate_content('Say "Gemini working"')
+        gemini_working = bool(gemini_response.text)
+        
+        # Test Weather API
+        weather_response = requests.get(
+            'https://api.openweathermap.org/data/2.5/weather',
+            params={'lat': 19.076, 'lon': 72.8777, 'appid': WEATHER_API_KEY, 'units': 'metric'}
+        )
+        weather_working = weather_response.status_code == 200
+        
+        return jsonify({
+            'success': True,
+            'gemini_working': gemini_working,
+            'weather_working': weather_working,
+            'gemini_response': gemini_response.text[:50] if gemini_working else None,
+            'weather_status': weather_response.status_code
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'gemini_working': False,
+            'weather_working': False
+        })
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
@@ -251,12 +215,19 @@ def predict():
 
 @app.route('/api/chatbot', methods=['POST'])
 def chatbot():
-    data = request.json
+    # Check content type
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Content-Type must be application/json'}), 415
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': 'Invalid JSON data'}), 400
+        
     user_msg = data.get('message', '')
     lang = data.get('lang', 'en-US')
     concise = bool(data.get('concise', True))
     if not user_msg:
-        return jsonify({'error': 'No message'}), 400
+        return jsonify({'success': False, 'error': 'No message provided'}), 400
     try:
         if not GEMINI_API_KEY:
             logger.warning('Gemini API key missing; returning fallback reply')
@@ -273,16 +244,16 @@ def chatbot():
         return jsonify({'success': True, 'response': text, 'lang': lang, 'concise': concise})
     except Exception as e:
         logger.error(f"Chatbot error: {e}")
-        return jsonify({'success': True, 'response': 'Please consult local experts.'})
+        return jsonify({'success': False, 'error': f'AI service error: {str(e)}', 'response': 'Please consult local experts.'})
 
 @app.route('/api/weather', methods=['POST'])
 def weather():
     data = request.json
     lat = data.get('latitude', 19.076)
     lon = data.get('longitude', 72.8777)
-    weather_data = get_weather_data(lat, lon)
-    if weather_data:
-        return jsonify(weather_data)
+    weather = get_weather_data(lat, lon)
+    if weather:
+        return jsonify({'success': True, 'weather': weather})
     else:
         return jsonify({'success': False, 'error': 'Weather fetch failed'}), 500
 
@@ -359,274 +330,47 @@ def dashboard_stats():
                     'growth': f"+{success_growth}%"
                 }
             },
+            'hackathon_info': {
+                'event': 'Smart India Hackathon 2024',
+                'problem_id': '25030',
+                'team': 'CODEHEX',
+                'theme': 'Agriculture & Rural Development'
+            },
             'last_updated': datetime.datetime.now().isoformat()
         })
     except Exception as e:
         logger.error(f"Dashboard stats error: {e}")
         return jsonify({'success': False, 'error': 'Failed to fetch statistics'}), 500
 
-@app.route('/api/analytics', methods=['GET'])
-def get_analytics():
-    """Get detailed analytics and performance metrics"""
-    try:
-        analytics_data = analytics_manager.get_analytics_summary()
-        return jsonify(analytics_data)
-    except Exception as e:
-        logger.error(f"Analytics error: {e}")
-        return jsonify({'success': False, 'error': 'Failed to fetch analytics'}), 500
-
-@app.route('/api/record-prediction', methods=['POST'])
-def record_prediction():
-    """Record a prediction for analytics"""
-    try:
-        data = request.get_json()
-        crop = data.get('crop', 'unknown')
-        confidence = data.get('confidence', 0.5)
-        success = data.get('success', True)
-        
-        analytics_manager.record_prediction(crop, confidence, success)
-        return jsonify({'success': True, 'message': 'Prediction recorded'})
-    except Exception as e:
-        logger.error(f"Record prediction error: {e}")
-        return jsonify({'success': False, 'error': 'Failed to record prediction'}), 500
-
-@app.route('/api/crop-calendar', methods=['GET'])
-def get_crop_calendar():
-    """Get comprehensive crop calendar data"""
-    try:
-        import datetime
-        
-        # Enhanced crop calendar data with planting and harvesting months
-        crop_calendar = [
-            {
-                'crop': 'Rice',
-                'emoji': '🌾',
-                'season': 'Kharif',
-                'plantingMonths': ['Jun', 'Jul', 'Aug'],
-                'harvestMonths': ['Oct', 'Nov', 'Dec'],
-                'duration': '120-150 days',
-                'tips': 'Plant during monsoon. Requires flooded fields.',
-                'color': '#4CAF50',
-                'yield': '3-4 tons/hectare',
-                'market_price': '₹2000-2500/quintal'
-            },
-            {
-                'crop': 'Wheat',
-                'emoji': '🌾',
-                'season': 'Rabi',
-                'plantingMonths': ['Nov', 'Dec', 'Jan'],
-                'harvestMonths': ['Mar', 'Apr', 'May'],
-                'duration': '120-150 days',
-                'tips': 'Plant in winter. Requires cool weather for growth.',
-                'color': '#FF9800',
-                'yield': '2-3 tons/hectare',
-                'market_price': '₹2100-2600/quintal'
-            },
-            {
-                'crop': 'Maize',
-                'emoji': '🌽',
-                'season': 'Kharif',
-                'plantingMonths': ['Jun', 'Jul'],
-                'harvestMonths': ['Sep', 'Oct'],
-                'duration': '90-120 days',
-                'tips': 'Can be grown year-round with irrigation.',
-                'color': '#FFC107',
-                'yield': '4-6 tons/hectare',
-                'market_price': '₹1800-2200/quintal'
-            },
-            {
-                'crop': 'Cotton',
-                'emoji': '🌿',
-                'season': 'Kharif',
-                'plantingMonths': ['Apr', 'May', 'Jun'],
-                'harvestMonths': ['Oct', 'Nov', 'Dec'],
-                'duration': '180-200 days',
-                'tips': 'Requires warm weather and moderate rainfall.',
-                'color': '#E91E63',
-                'yield': '1-2 tons/hectare',
-                'market_price': '₹5500-6500/quintal'
-            },
-            {
-                'crop': 'Sugarcane',
-                'emoji': '🎋',
-                'season': 'Year-round',
-                'plantingMonths': ['Feb', 'Mar', 'Oct', 'Nov'],
-                'harvestMonths': ['Dec', 'Jan', 'Feb', 'Mar'],
-                'duration': '12-18 months',
-                'tips': 'Long duration crop. Plant in spring or autumn.',
-                'color': '#9C27B0',
-                'yield': '70-100 tons/hectare',
-                'market_price': '₹280-350/quintal'
-            },
-            {
-                'crop': 'Potato',
-                'emoji': '🥔',
-                'season': 'Rabi',
-                'plantingMonths': ['Oct', 'Nov', 'Dec'],
-                'harvestMonths': ['Jan', 'Feb', 'Mar'],
-                'duration': '90-120 days',
-                'tips': 'Cool weather crop. Avoid frost during harvest.',
-                'color': '#795548',
-                'yield': '20-25 tons/hectare',
-                'market_price': '₹800-1500/quintal'
-            },
-            {
-                'crop': 'Tomato',
-                'emoji': '🍅',
-                'season': 'Year-round',
-                'plantingMonths': ['Jun', 'Jul', 'Oct', 'Nov'],
-                'harvestMonths': ['Sep', 'Oct', 'Jan', 'Feb'],
-                'duration': '90-120 days',
-                'tips': 'Can be grown in multiple seasons with proper care.',
-                'color': '#F44336',
-                'yield': '40-60 tons/hectare',
-                'market_price': '₹1000-2000/quintal'
-            },
-            {
-                'crop': 'Mustard',
-                'emoji': '🌻',
-                'season': 'Rabi',
-                'plantingMonths': ['Oct', 'Nov'],
-                'harvestMonths': ['Feb', 'Mar'],
-                'duration': '90-110 days',
-                'tips': 'Cool season oilseed crop.',
-                'color': '#FFEB3B',
-                'yield': '1.5-2 tons/hectare',
-                'market_price': '₹4500-5500/quintal'
-            }
-        ]
-        
-        # Generate upcoming events based on current month
-        current_month = datetime.datetime.now().month
-        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        current_month_name = month_names[current_month - 1]
-        
-        upcoming_events = []
-        
-        # Find crops to plant this month
-        for crop in crop_calendar:
-            if current_month_name in crop['plantingMonths']:
-                upcoming_events.append({
-                    'id': f"plant_{crop['crop'].lower()}",
-                    'title': f"{crop['crop']} Planting",
-                    'date': "This month",
-                    'type': "sowing",
-                    'crop': crop['crop'],
-                    'description': f"Optimal time for {crop['crop'].lower()} planting in {crop['season']} season",
-                    'emoji': crop['emoji']
-                })
-            
-            if current_month_name in crop['harvestMonths']:
-                upcoming_events.append({
-                    'id': f"harvest_{crop['crop'].lower()}",
-                    'title': f"{crop['crop']} Harvest",
-                    'date': "This month",
-                    'type': "harvest",
-                    'crop': crop['crop'],
-                    'description': f"Harvest time for {crop['crop'].lower()} crop",
-                    'emoji': crop['emoji']
-                })
-        
-        # Add some general farming activities
-        general_events = [
-            {
-                'id': 'irrigation_check',
-                'title': 'Irrigation System Check',
-                'date': 'Weekly',
-                'type': 'irrigation',
-                'crop': 'All crops',
-                'description': 'Regular check of irrigation systems and water supply',
-                'emoji': '💧'
-            },
-            {
-                'id': 'fertilizer_application',
-                'title': 'Fertilizer Application',
-                'date': 'Monthly',
-                'type': 'fertilizer',
-                'crop': 'Active crops',
-                'description': 'Apply appropriate fertilizers based on crop growth stage',
-                'emoji': '🌱'
-            }
-        ]
-        
-        upcoming_events.extend(general_events)
-        
-        return jsonify({
-            'success': True,
-            'crop_calendar': crop_calendar,
-            'upcoming_events': upcoming_events[:6],  # Limit to 6 events
-            'current_month': current_month_name,
-            'seasons': ['All', 'Kharif', 'Rabi', 'Zaid'],
-            'months': month_names,
-            'weather_recommendation': {
-                'title': 'Weather-Based Recommendations',
-                'description': 'Current conditions are favorable for field activities. Monitor weather forecasts for planning.',
-                'favorable': True
-            },
-            'last_updated': datetime.datetime.now().isoformat()
-        })
-    except Exception as e:
-        logger.error(f"Crop calendar error: {e}")
-        return jsonify({'success': False, 'error': 'Failed to fetch crop calendar data'}), 500
-
-@app.route('/api/crop-calendar/month/<int:month>', methods=['GET'])
-def get_month_activities(month):
-    """Get activities for a specific month"""
-    try:
-        if month < 1 or month > 12:
-            return jsonify({'success': False, 'error': 'Invalid month'}), 400
-            
-        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        month_name = month_names[month - 1]
-        
-        # Get crops for this month from the database
-        crops_to_plant = []
-        crops_to_harvest = []
-        
-        for crop_name, crop_info in crop_database.items():
-            # This is a simplified version - in a real app, you'd have proper month data
-            if crop_name in ['rice', 'maize'] and month in [6, 7, 8]:  # Kharif planting
-                crops_to_plant.append({
-                    'crop': crop_name.title(),
-                    'emoji': crop_info['emoji'],
-                    'duration': crop_info['duration'],
-                    'season': crop_info['season']
-                })
-            elif crop_name in ['wheat', 'potato'] and month in [11, 12, 1]:  # Rabi planting
-                crops_to_plant.append({
-                    'crop': crop_name.title(),
-                    'emoji': crop_info['emoji'],
-                    'duration': crop_info['duration'],
-                    'season': crop_info['season']
-                })
-            elif crop_name in ['rice', 'maize'] and month in [10, 11, 12]:  # Kharif harvest
-                crops_to_harvest.append({
-                    'crop': crop_name.title(),
-                    'emoji': crop_info['emoji'],
-                    'duration': crop_info['duration'],
-                    'season': crop_info['season']
-                })
-            elif crop_name in ['wheat', 'potato'] and month in [3, 4, 5]:  # Rabi harvest
-                crops_to_harvest.append({
-                    'crop': crop_name.title(),
-                    'emoji': crop_info['emoji'],
-                    'duration': crop_info['duration'],
-                    'season': crop_info['season']
-                })
-        
-        return jsonify({
-            'success': True,
-            'month': month_name,
-            'month_number': month,
-            'crops_to_plant': crops_to_plant,
-            'crops_to_harvest': crops_to_harvest,
-            'activities_count': len(crops_to_plant) + len(crops_to_harvest)
-        })
-    except Exception as e:
-        logger.error(f"Month activities error: {e}")
-        return jsonify({'success': False, 'error': 'Failed to fetch month activities'}), 500
+@app.route('/api/hackathon-info', methods=['GET'])
+def hackathon_info():
+    """Get Smart India Hackathon information"""
+    return jsonify({
+        'success': True,
+        'hackathon': {
+            'event_name': 'Smart India Hackathon 2024',
+            'problem_statement_id': '25030',
+            'team_name': 'CODEHEX',
+            'theme': 'Agriculture & Rural Development',
+            'project_title': 'AI Crop Advisor',
+            'description': 'An intelligent agricultural advisory system that helps farmers make informed decisions about crop selection, disease management, and optimal farming practices using AI and machine learning technologies.',
+            'technologies': [
+                'Python Flask',
+                'React TypeScript',
+                'React Native',
+                'Machine Learning',
+                'Google Gemini AI',
+                'OpenWeatherMap API'
+            ],
+            'features': [
+                'AI-Powered Crop Prediction',
+                'Real-time Weather Integration',
+                'Disease Detection',
+                'Intelligent Chat Assistant',
+                'Cross-platform Support'
+            ]
+        }
+    })
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

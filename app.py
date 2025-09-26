@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+
+# Debug information for Render deployment
+import os
+import sys
+print(f"=== RENDER DEBUG INFO ===")
+print(f"Current working directory: {os.getcwd()}")
+print(f"Python executable: {sys.executable}")
+print(f"Python path: {sys.path}")
+print(f"Files in current directory: {os.listdir('.')}")
+print(f"Environment variables: PORT={os.environ.get('PORT', 'Not set')}")
+print(f"=== END DEBUG INFO ===")
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
@@ -9,7 +22,6 @@ import google.generativeai as genai
 import logging
 import base64
 import random
-import os
 import datetime
 
 app = Flask(__name__)
